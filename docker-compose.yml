@@ -1,0 +1,20 @@
+version: "3"
+services:
+  elasticsearch:
+    container_name: "elastic_luqmanr"
+    restart: always
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.1.1
+    ports:
+      - 8200:9200
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - ELASTIC_PASSWORD=asecurepassword
+  
+  kibana:
+    container_name: "kibana_luqmanr"
+    restart: always
+    image: docker.elastic.co/kibana/kibana:8.1.1
+    ports:
+      - 8600:5601
