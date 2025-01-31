@@ -57,7 +57,7 @@ def login():
 
         # r2 = requests.get('http://kibana:5601/app/home', cookies=res.cookies)
 
-        resp = make_response(redirect('https://cr.weather.id/app/home'))
+        resp = make_response(redirect('https://cr.weather.id/'))
         for c in cookies:
             resp.set_cookie(c, cookies[c])
 
