@@ -49,15 +49,15 @@ def login():
     }
 
     if len(username) > 0 and len(password) > 0:
-        res = requests.post('http://kibana:5601/internal/security/login', headers=headers, json=data)
+        res = requests.post('http://10.123.0.1:5601/internal/security/login', headers=headers, json=data)
         print(res)
         print(res.content)
         print(res.cookies.get_dict())
         cookies = res.cookies.get_dict()
 
-        r2 = requests.get('http://kibana:5601/app/home', cookies=res.cookies)
+        # r2 = requests.get('http://kibana:5601/app/home', cookies=res.cookies)
 
-        resp = make_response(redirect('http://10.22.45.42:88/app/home'))
+        resp = make_response(redirect('https://cr.weather.id/app/home'))
         for c in cookies:
             resp.set_cookie(c, cookies[c])
 
