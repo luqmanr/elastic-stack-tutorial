@@ -1,4 +1,5 @@
 from flask import Flask, Response, request, redirect, make_response
+from urllib.parse import urlparse
 
 import logging
 import requests
@@ -24,6 +25,16 @@ def root():
 
 @app.route('/login')
 def login():
+
+    req_headers = request.headers
+    print('req_headers:', req_headers)
+    host = req_headers.get('Host', '')
+    proto = req_headers.get('X-Forwarded-Proto', 'http')
+    print(f'host: {host} - proto: {proto}')
+    params = request.args
+    username = params.get('username', '')
+    password = params.get('password', '')
+
     headers = {
         "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate",
@@ -33,15 +44,10 @@ def login():
         # "X-Amzn-Trace-Id": "Root=1-6410831d-666f197b78c8e97a3013bea9",
         # "Authorization": "ApiKey cXdWc3Q1UUIzcDJjTVVmdi14UUs6dzQ5amdLaEFUWU9jWEpqWXNGczdEZw=="
     }
-
-    params = request.args
-    username = params.get('username', '')
-    password = params.get('password', '')
-
     data = {
         "providerType":"basic",
         "providerName":"basic",
-        "currentURL":"http://10.22.45.42:88/login?",
+        "currentURL":f"{proto}://{host}/login?",
         'params': {
             'username': username,
             'password': password
@@ -49,7 +55,9 @@ def login():
     }
 
     if len(username) > 0 and len(password) > 0:
-        res = requests.post('http://10.123.0.1:5601/internal/security/login', headers=headers, json=data)
+        if proto == 'http':
+            host = f'{host}:88'
+        res = requests.post(f'{proto}://{host}/internal/security/login', headers=headers, json=data)
         print(res)
         print(res.content)
         print(res.cookies.get_dict())
@@ -57,7 +65,7 @@ def login():
 
         # r2 = requests.get('http://kibana:5601/app/home', cookies=res.cookies)
 
-        resp = make_response(redirect('https://cr.weather.id/'))
+        resp = make_response(redirect(f'{proto}://{host}/'))
         for c in cookies:
             resp.set_cookie(c, cookies[c])
 
