@@ -2,3 +2,4 @@
 **.txt
 kibana/
 elasticsearch/
+elk_login/.gitignore
