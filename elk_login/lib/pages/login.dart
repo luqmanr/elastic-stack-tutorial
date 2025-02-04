@@ -6,9 +6,28 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class LoginPage extends StatelessWidget {
+import 'dart:html';
+
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +82,7 @@ class LoginPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(
+          controller: usernameController,
           decoration: InputDecoration(
               hintText: "Username",
               border: OutlineInputBorder(
@@ -74,6 +94,7 @@ class LoginPage extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         TextField(
+          controller: passwordController,
           decoration: InputDecoration(
             hintText: "Password",
             border: OutlineInputBorder(
@@ -87,7 +108,10 @@ class LoginPage extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () async {
+            await _loginSubmit(
+                usernameController.text, passwordController.text);
+          },
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -128,9 +152,83 @@ class LoginPage extends StatelessWidget {
   }
 
   _loginSubmit(String username, String password) async {
-    http.Response? resp = await http.post(Uri.parse('http://10.22.45.42/login'),
-        headers: <String, String>{'Content-Type': 'application/json'},
+    try {
+      final Uri uri = Uri.parse('https://dashboard.weather.id/loginv2');
+
+      final http.Response resp = await http.post(
+        uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
         body: jsonEncode(
-            <String, String>{'username': username, 'password': password}));
+            <String, String>{'username': username, 'password': password}),
+      );
+
+      print(
+          "Status Code: ${resp.statusCode}"); // Important: Check the status code
+
+      final respJson = jsonDecode(resp.body) as Map<String, dynamic>;
+      print("resp.body $respJson}");
+
+      document.cookie = "sid=${respJson['sid']}";
+
+      if (resp.statusCode == 200 ||
+          resp.statusCode == 301 ||
+          resp.statusCode == 302 ||
+          resp.statusCode == 307 ||
+          resp.statusCode == 308) {
+        // Redirect occurred.  The 'location' header contains the redirect URL.
+        print("response headers: ${resp.headers}");
+        String? redirectUrl = resp.headers['location'];
+        if (redirectUrl != null) {
+          print("Redirecting to: $redirectUrl");
+
+          //Option 1:  Manually follow the redirect (if you need more control)
+          final http.Response redirectResponse =
+              await http.get(Uri.parse(redirectUrl));
+          print("Redirect Response: ${redirectResponse.statusCode}");
+          print("Redirect Body: ${redirectResponse.body}");
+
+          //Option 2: Let http handle it (usually the best way). http already did follow the redirect.
+          print("Final URL: ${resp.request?.url}"); //Access the final url
+
+          // Process the redirectResponse or just the resp, depending on your need
+          if (redirectResponse.statusCode == 200) {
+            //Do what you have to do
+          } else {
+            // Handle error
+          }
+        } else {
+          print("Redirect but no 'location' header found.");
+          print("Redirecting to: https://dashboard.weather.id");
+
+          //Option 1:  Manually follow the redirect (if you need more control)
+          // final http.Response redirectResponse =
+          //     await http.get(Uri.parse("https://dashboard.weather.id"));
+
+          await launchUrl(
+            Uri.parse("https://dashboard.weather.id"),
+            webOnlyWindowName: '_self',
+          );
+          // print("Redirect Response: ${redirectResponse.statusCode}");
+          // print("Redirect Body: ${redirectResponse.body}");
+
+          // //Option 2: Let http handle it (usually the best way). http already did follow the redirect.
+          // print("Final URL: ${resp.request?.url}"); //Access the final url
+
+          // // Process the redirectResponse or just the resp, depending on your need
+          // if (redirectResponse.statusCode == 200) {
+          //   //Do what you have to do
+          // } else {
+          //   // Handle error
+          // }
+        }
+      } else {
+        // Other error codes (e.g., 400, 401, 500)
+        print("Login Failed: ${resp.statusCode} - ${resp.body}");
+      }
+    } catch (e) {
+      print("Error during login: $e");
+    }
   }
 }

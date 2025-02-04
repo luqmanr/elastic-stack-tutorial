@@ -3,3 +3,4 @@
 kibana/
 elasticsearch/
 elk_login/.gitignore
+**.dart_tool

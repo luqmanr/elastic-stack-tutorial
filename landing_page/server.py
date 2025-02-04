@@ -1,11 +1,16 @@
 from flask import Flask, Response, request, redirect, make_response
+from flask_cors import CORS
+
 from urllib.parse import urlparse
 
 import logging
 import requests
 import os
+import json
 
 app = Flask(__name__)
+# cors = CORS(app, resources={r"/foo": {"origins": "*"}})
+cors = CORS(app)
 
 @app.route('/')
 def root():
@@ -23,7 +28,7 @@ def root():
     print(res.content)
     return res.content
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
 
     req_headers = request.headers
@@ -31,9 +36,12 @@ def login():
     host = req_headers.get('Host', '')
     proto = req_headers.get('X-Forwarded-Proto', 'http')
     print(f'host: {host} - proto: {proto}')
-    params = request.args
-    username = params.get('username', '')
-    password = params.get('password', '')
+
+    req = request.get_json(force=True)
+    print(f'request json: {req}')
+    logging.info(f'request json: {req}')
+    username = req.get('username', '')
+    password = req.get('password', '')
 
     headers = {
         "Accept": "*/*",
@@ -57,22 +65,24 @@ def login():
     if len(username) > 0 and len(password) > 0:
         if proto == 'http':
             host = f'{host}:88'
-        res = requests.post(f'{proto}://{host}/internal/security/login', headers=headers, json=data)
+        res = requests.post(f'https://dashboard.weather.id/internal/security/login', headers=headers, json=data)
         print(res)
         print(res.content)
         print(res.cookies.get_dict())
         cookies = res.cookies.get_dict()
 
-        # r2 = requests.get('http://kibana:5601/app/home', cookies=res.cookies)
-
-        resp = make_response(redirect(f'{proto}://{host}/'))
+        print(f'redirecting to: {proto}://{host}/')
+        resp = make_response(redirect(f'https://dashboard.weather.id/'))
         for c in cookies:
             resp.set_cookie(c, cookies[c])
 
         return resp
 
-    return open('index.html', 'r').read()
+    resp = Response('ok', headers={'Access-Controler-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'})
+    return resp
 
+    # return open('index.html', 'r').read()
 
 if __name__ == '__main__':
     logging.info("Starting server...")
