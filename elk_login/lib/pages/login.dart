@@ -21,6 +21,9 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  String errorMsg = '';
+  String errorStatus = '';
+
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -43,7 +46,11 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _inputField(context),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                (errorMsg.length > 0)
+                    ? _errBox(context)
+                    : SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.05),
                 _forgotPassword(context),
                 _signup(context),
               ],
@@ -54,22 +61,78 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  _errBox(context) {
+    return ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.08,
+          width: MediaQuery.of(context).size.width * 0.2,
+          color: Color.fromARGB(255, 255, 56, 73),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text(
+              errorMsg,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            Text(
+              errorStatus,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+          ]),
+        ));
+  }
+
   _header(context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Image(
-          image: AssetImage('images/commonroom-logo.png'),
-          width: MediaQuery.of(context).size.width * 0.3,
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: WrapAlignment.center,
+          verticalDirection: VerticalDirection.down,
+          children: <Widget>[
+            // SvgPicture.asset(
+            //   './images/kerjasama-jerman-logo.svg',
+            //   // colorFilter: const ColorFilter.mode(
+            //   //     Color.fromARGB(255, 26, 2, 0), BlendMode.srcIn),
+            //   // width: MediaQuery.of(context).size.width * 0.15,
+            //   width: 250,
+            // ),
+            Image(
+              image: AssetImage('images/kerjasama-jerman-logo.png'),
+              width: MediaQuery.of(context).size.height * 0.25,
+            ),
+            Image(
+              image: AssetImage('images/giz-logo.png'),
+              width: MediaQuery.of(context).size.height * 0.25,
+            ),
+            Image(
+              image: AssetImage('images/bappenas-logo-2.png'),
+              width: MediaQuery.of(context).size.height * 0.25,
+            ),
+            Image(
+              image: AssetImage('images/commonroom-logo.png'),
+              width: MediaQuery.of(context).size.height * 0.3,
+            ),
+            Image(
+              image: AssetImage('images/co_labs-logo.png'),
+              width: MediaQuery.of(context).size.height * 0.3,
+            ),
+          ],
         ),
-        // SvgPicture.asset(
-        //   './images/commonroom-logo.svg',
-        //   colorFilter: const ColorFilter.mode(
-        //       Color.fromARGB(255, 26, 2, 0), BlendMode.srcIn),
-        //   width: 400,
-        // ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.01),
         const Text(
           "Welcome to CO-LABS Weather Dashboard",
+          textAlign: TextAlign.center,
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
         // Text("Enter your credential to login"),
@@ -82,6 +145,10 @@ class _LoginPageState extends State<LoginPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(
+          onSubmitted: (val) {
+            _loginSubmit(usernameController.text, passwordController.text);
+          },
+          autofillHints: [AutofillHints.username],
           controller: usernameController,
           decoration: InputDecoration(
               hintText: "Username",
@@ -94,6 +161,10 @@ class _LoginPageState extends State<LoginPage> {
         ),
         const SizedBox(height: 10),
         TextField(
+          onSubmitted: (val) {
+            _loginSubmit(usernameController.text, passwordController.text);
+          },
+          autofillHints: [AutofillHints.password],
           controller: passwordController,
           decoration: InputDecoration(
             hintText: "Password",
@@ -152,83 +223,86 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _loginSubmit(String username, String password) async {
+    if (password.length == 0 && username.length == 0) {
+      setState(() {
+        errorMsg = 'please fill in your login details';
+      });
+      return;
+    } else if (password.length == 0) {
+      setState(() {
+        errorMsg = 'password is empty!';
+      });
+      return;
+    } else if (username.length == 0) {
+      setState(() {
+        errorMsg = 'username is empty!';
+      });
+      return;
+    }
     try {
-      final Uri uri = Uri.parse('https://dashboard.weather.id/loginv2');
+      // final Uri uri = Uri.parse('http://127.0.0.1:8123/login/v2');
+      // print("current url: ${Uri.base.origin} - ${window.location.href}");
+      final Uri uri = Uri.parse('https://dashboard.weather.id/login/v2');
 
       final http.Response resp = await http.post(
         uri,
         headers: <String, String>{
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(
-            <String, String>{'username': username, 'password': password}),
+        body: jsonEncode(<String, String>{
+          'username': username,
+          'password': password,
+          'origin': "${Uri.base.origin}"
+        }),
       );
 
-      print(
-          "Status Code: ${resp.statusCode}"); // Important: Check the status code
+      // print("Status Code: ${resp.statusCode}"); // Important: Check the status code
 
       final respJson = jsonDecode(resp.body) as Map<String, dynamic>;
-      print("resp.body $respJson}");
-
-      document.cookie = "sid=${respJson['sid']}";
-
-      if (resp.statusCode == 200 ||
-          resp.statusCode == 301 ||
-          resp.statusCode == 302 ||
-          resp.statusCode == 307 ||
-          resp.statusCode == 308) {
-        // Redirect occurred.  The 'location' header contains the redirect URL.
-        print("response headers: ${resp.headers}");
-        String? redirectUrl = resp.headers['location'];
-        if (redirectUrl != null) {
-          print("Redirecting to: $redirectUrl");
-
-          //Option 1:  Manually follow the redirect (if you need more control)
-          final http.Response redirectResponse =
-              await http.get(Uri.parse(redirectUrl));
-          print("Redirect Response: ${redirectResponse.statusCode}");
-          print("Redirect Body: ${redirectResponse.body}");
-
-          //Option 2: Let http handle it (usually the best way). http already did follow the redirect.
-          print("Final URL: ${resp.request?.url}"); //Access the final url
-
-          // Process the redirectResponse or just the resp, depending on your need
-          if (redirectResponse.statusCode == 200) {
-            //Do what you have to do
-          } else {
-            // Handle error
-          }
-        } else {
-          print("Redirect but no 'location' header found.");
-          print("Redirecting to: https://dashboard.weather.id");
-
-          //Option 1:  Manually follow the redirect (if you need more control)
-          // final http.Response redirectResponse =
-          //     await http.get(Uri.parse("https://dashboard.weather.id"));
-
-          await launchUrl(
-            Uri.parse("https://dashboard.weather.id"),
-            webOnlyWindowName: '_self',
-          );
-          // print("Redirect Response: ${redirectResponse.statusCode}");
-          // print("Redirect Body: ${redirectResponse.body}");
-
-          // //Option 2: Let http handle it (usually the best way). http already did follow the redirect.
-          // print("Final URL: ${resp.request?.url}"); //Access the final url
-
-          // // Process the redirectResponse or just the resp, depending on your need
-          // if (redirectResponse.statusCode == 200) {
-          //   //Do what you have to do
-          // } else {
-          //   // Handle error
-          // }
-        }
-      } else {
-        // Other error codes (e.g., 400, 401, 500)
-        print("Login Failed: ${resp.statusCode} - ${resp.body}");
+      print("resp.status ${resp.statusCode}");
+      if (resp.statusCode == 401) {
+        // unauthorized
+        setState(() {
+          errorMsg = 'invalid credentials';
+          errorStatus = '401';
+        });
+        return;
+      } else if ((resp.statusCode != 200) && (resp.statusCode != 400)) {
+        // internal server error
+        setState(() {
+          errorMsg = 'internal server error';
+          errorStatus = '500';
+        });
+        return;
       }
+
+      setState(() {
+        errorMsg = '';
+        errorStatus = '';
+      });
+
+      // Redirect occurred.  The 'location' header contains the redirect URL.
+      // print("response headers: ${resp.headers}");
+      // document.cookie = "sid=${respJson['sid']}";
+      String? redirectUrl = respJson['location'];
+      if (redirectUrl == null) {
+        // redirect to the samepage
+        await launchUrl(
+          Uri.parse("${Uri.base.origin}"),
+          webOnlyWindowName: '_self',
+        );
+      }
+      await launchUrl(
+        Uri.parse(redirectUrl!),
+        webOnlyWindowName: '_self',
+      );
     } catch (e) {
-      print("Error during login: $e");
+      // treat the same as error 500
+      // print("Error during login: $e");
+      setState(() {
+        errorMsg = 'internal server error';
+        errorStatus = '500';
+      });
     }
   }
 }
