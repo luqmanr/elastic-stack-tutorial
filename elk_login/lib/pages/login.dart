@@ -58,42 +58,6 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // _initCheckCookies() async {
-  //   var cookie = document.cookie!;
-  //   final entity = cookie.split("; ").map((item) {
-  //     final split = item.split("=");
-  //     return MapEntry(split[0], split[1]);
-  //   });
-  //   final cookieMap = Map.fromEntries(entity);
-  //   // print("cookiesmap: $cookieMap - $cookie - ${document.cookie.toString()}");
-  //   if (Uri.base.query.toLowerCase().contains("logged_out") ||
-  //       // !cookieMap.containsKey('sid') ||
-  //       (cookieMap.containsKey('sid') && cookieMap['sid']!.length == 0) ||
-  //       ('$cookieMap' == '{: null}')) {
-  //     // print("we should be logged out");
-  //     final Uri uri = Uri.parse('https://dashboard.weather.id/logout/internal');
-
-  //     final http.Response resp = await http.post(
-  //       uri,
-  //       headers: <String, String>{
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: jsonEncode(<String, String>{}),
-  //     );
-  //     // print("${document.cookie.toString()}");
-  //     // launchUrl(
-  //     //   Uri.parse("${Uri.base.origin}"),
-  //     //   webOnlyWindowName: '_self',
-  //     // );
-  //   } else {
-  //     // print("we aren't logged out, continue");
-  //     launchUrl(
-  //       Uri.parse("${Uri.base.origin}"),
-  //       webOnlyWindowName: '_self',
-  //     );
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -117,36 +81,6 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
-  }
-
-  _errBox(context) {
-    return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.08,
-          width: MediaQuery.of(context).size.width * 0.2,
-          color: Color.fromARGB(255, 255, 56, 73),
-          padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.02),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(
-              errorMsg,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
-            ),
-            Text(
-              errorStatus,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
-            ),
-          ]),
-        ));
   }
 
   _header(context) {
@@ -311,16 +245,27 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _signup(context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        const Text("Dont have an account? "),
-        TextButton(
-            onPressed: () {},
-            child: const Text(
-              "Sign Up",
-              style: TextStyle(color: Color(0xff0093BB)),
-            ))
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("Dont have an account? "),
+            TextButton(
+                onPressed: () {},
+                child: const Text(
+                  "Sign Up",
+                  style: TextStyle(color: Color(0xff0093BB)),
+                )),
+          ],
+        ),
+        Image(
+          image: AssetImage('images/insan-infonesia-logo.png'),
+          width: (MediaQuery.of(context).size.width >
+                  MediaQuery.of(context).size.height)
+              ? MediaQuery.of(context).size.height * 0.05
+              : MediaQuery.of(context).size.width * 0.1,
+        )
       ],
     );
   }
