@@ -42,7 +42,11 @@ dependencies:
   cupertino_icons: ^1.0.6
 
   url_launcher: ^6.1.0
+
   webview_flutter: ^4.8.0
+
+  webview_cookie_manager: ^2.0.6
+  
   rename: ^3.0.2
 
 dev_dependencies:

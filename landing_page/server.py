@@ -79,6 +79,13 @@ def login():
 
     return open('index.html', 'r').read()
 
+@app.route('/logout/internal', methods=['GET','POST'])
+def logout():
+    r = Response(jsonpickle.encode({'status': 200, 'message': 'ok'}), mimetype="application/json", status=200)
+    r.set_cookie('location', '', samesite='Lax', secure=True, max_age=0)
+    r.set_cookie('sid', '', samesite='Lax', secure=True, max_age=0)
+    return r
+
 @app.route('/login/v2', methods=['GET','POST'])
 def loginv2():
 
@@ -153,13 +160,15 @@ def loginv2():
 
     # if res.status_code == 200
     cookies = res.cookies.get_dict()
-    cookies['location'] = origin
+    response_json = cookies.copy()
+    response_json['location'] = origin
 
-    r = Response(jsonpickle.encode(cookies), mimetype="application/json", status=200)
-    r.headers['location'] = origin
+    r = Response(jsonpickle.encode(response_json), mimetype="application/json", status=200)
+    # r.headers['location'] = origin
+    # r.set_cookie('location', origin, samesite='Lax', secure=True)
     for c in cookies:
         # r.headers[c] = cookies[c]
-        r.set_cookie(c, cookies[c])
+        r.set_cookie(c, cookies[c], samesite='Lax', secure=True)
     print(f'response headers: {r.headers}')
 
     return r

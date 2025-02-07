@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
 import 'dart:html';
 
@@ -18,11 +19,19 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final cookieManager = WebviewCookieManager();
+
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   String errorMsg = '';
   String errorStatus = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _initCheckCookies();
+  }
 
   @override
   void dispose() {
@@ -31,6 +40,59 @@ class _LoginPageState extends State<LoginPage> {
     passwordController.dispose();
     super.dispose();
   }
+
+  _initCheckCookies() async {
+    try {
+      final response = await http.get(Uri.parse("${Uri.base.origin}"));
+      // print("response check cookies: $response");
+      // print("response check cookies status code: ${response.statusCode}");
+      // print("response check cookies body: ${response.body}");
+      if (response.body.toLowerCase().contains("please upgrade your browser")) {
+        launchUrl(
+          Uri.parse("${Uri.base.origin}"),
+          webOnlyWindowName: '_self',
+        );
+      }
+    } catch (e) {
+      // print("error check cookies: ${e}");
+    }
+  }
+
+  // _initCheckCookies() async {
+  //   var cookie = document.cookie!;
+  //   final entity = cookie.split("; ").map((item) {
+  //     final split = item.split("=");
+  //     return MapEntry(split[0], split[1]);
+  //   });
+  //   final cookieMap = Map.fromEntries(entity);
+  //   // print("cookiesmap: $cookieMap - $cookie - ${document.cookie.toString()}");
+  //   if (Uri.base.query.toLowerCase().contains("logged_out") ||
+  //       // !cookieMap.containsKey('sid') ||
+  //       (cookieMap.containsKey('sid') && cookieMap['sid']!.length == 0) ||
+  //       ('$cookieMap' == '{: null}')) {
+  //     // print("we should be logged out");
+  //     final Uri uri = Uri.parse('https://dashboard.weather.id/logout/internal');
+
+  //     final http.Response resp = await http.post(
+  //       uri,
+  //       headers: <String, String>{
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: jsonEncode(<String, String>{}),
+  //     );
+  //     // print("${document.cookie.toString()}");
+  //     // launchUrl(
+  //     //   Uri.parse("${Uri.base.origin}"),
+  //     //   webOnlyWindowName: '_self',
+  //     // );
+  //   } else {
+  //     // print("we aren't logged out, continue");
+  //     launchUrl(
+  //       Uri.parse("${Uri.base.origin}"),
+  //       webOnlyWindowName: '_self',
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -284,6 +346,8 @@ class _LoginPageState extends State<LoginPage> {
       // Redirect occurred.  The 'location' header contains the redirect URL.
       // print("response headers: ${resp.headers}");
       // document.cookie = "sid=${respJson['sid']}";
+      // print(
+      //     "current cookies: $document.cookie, ${cookieManager.getCookies(Uri.base.origin)}");
       String? redirectUrl = respJson['location'];
       if (redirectUrl == null) {
         // redirect to the samepage
