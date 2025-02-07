@@ -290,7 +290,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       // final Uri uri = Uri.parse('http://127.0.0.1:8123/login/v2');
       // print("current url: ${Uri.base.origin} - ${window.location.href}");
-      final Uri uri = Uri.parse('https://dashboard.weather.id/login/v2');
+      final Uri uri = Uri.parse('${Uri.base.origin}/login/v2');
 
       final http.Response resp = await http.post(
         uri,

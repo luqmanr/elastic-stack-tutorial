@@ -137,7 +137,7 @@ def loginv2():
         return Response(jsonpickle.encode(response), mimetype="application/json", status=response['status'])
 
     try:
-        res = requests.post(f'http://10.123.0.1:5601/internal/security/login', headers=headers, json=data)
+        res = requests.post(f'http://kibana:5601/internal/security/login', headers=headers, json=data)
         # res = requests.post(f'https://dashboard.weather.id/internal/security/login', headers=headers, json=data)
     except Exception as e:
         print(f'failed to login: {e}')
