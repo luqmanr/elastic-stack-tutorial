@@ -42,9 +42,9 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #0e1514;
-            color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #ffffff;
+            color: #0093BB;
+            font-family: Poppins;
         }
 
         .loader-container {
@@ -55,17 +55,17 @@
         }
 
       .kt-text {
-          font-size: 2vw; /* Size relative to viewport width */
+          font-size: 5vw; /* Size relative to viewport width */
           font-weight: bold;
-          color: #ffffff;
+          color: #0093BB;
           position: relative;
           z-index: 2;
       }
 
       .bracket {
           position: absolute;
-          font-size: 3vw; /* Adjusted relative to viewport width */
-          color: #888888;
+          font-size: 5vw; /* Adjusted relative to viewport width */
+          color: #0092bb94;
           animation: pulseOut 1.5s infinite ease-in-out;
           opacity: 0;
       }
@@ -92,6 +92,11 @@
                 transform: scale(1.6);
                 opacity: 0;
             }
+        }
+
+        @font-face {
+            font-family: Poppins;
+            src: url(fonts/Poppins/Poppins-Regular.ttf);
         }
 
   </style>

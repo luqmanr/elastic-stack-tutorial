@@ -109,10 +109,6 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 _inputField(context),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-                (errorMsg.length > 0)
-                    ? _errBox(context)
-                    : SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.05),
                 _forgotPassword(context),
                 _signup(context),
               ],
@@ -162,32 +158,50 @@ class _LoginPageState extends State<LoginPage> {
           alignment: WrapAlignment.center,
           verticalDirection: VerticalDirection.down,
           children: <Widget>[
-            // SvgPicture.asset(
-            //   './images/kerjasama-jerman-logo.svg',
-            //   // colorFilter: const ColorFilter.mode(
-            //   //     Color.fromARGB(255, 26, 2, 0), BlendMode.srcIn),
-            //   // width: MediaQuery.of(context).size.width * 0.15,
-            //   width: 250,
-            // ),
+            SvgPicture.asset(
+              './images/fairforward-logo.svg',
+              // colorFilter: const ColorFilter.mode(
+              //     Color.fromARGB(255, 26, 2, 0), BlendMode.srcIn),
+              width: (MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height)
+                  ? MediaQuery.of(context).size.height * 0.25
+                  : MediaQuery.of(context).size.width * 0.3,
+              // width: 250,
+            ),
             Image(
               image: AssetImage('images/kerjasama-jerman-logo.png'),
-              width: MediaQuery.of(context).size.height * 0.25,
+              width: (MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height)
+                  ? MediaQuery.of(context).size.height * 0.2
+                  : MediaQuery.of(context).size.width * 0.25,
             ),
             Image(
               image: AssetImage('images/giz-logo.png'),
-              width: MediaQuery.of(context).size.height * 0.25,
+              width: (MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height)
+                  ? MediaQuery.of(context).size.height * 0.2
+                  : MediaQuery.of(context).size.width * 0.25,
             ),
             Image(
               image: AssetImage('images/bappenas-logo-2.png'),
-              width: MediaQuery.of(context).size.height * 0.25,
+              width: (MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height)
+                  ? MediaQuery.of(context).size.height * 0.2
+                  : MediaQuery.of(context).size.width * 0.25,
             ),
             Image(
               image: AssetImage('images/commonroom-logo.png'),
-              width: MediaQuery.of(context).size.height * 0.3,
+              width: (MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height)
+                  ? MediaQuery.of(context).size.height * 0.25
+                  : MediaQuery.of(context).size.width * 0.3,
             ),
             Image(
               image: AssetImage('images/co_labs-logo.png'),
-              width: MediaQuery.of(context).size.height * 0.3,
+              width: (MediaQuery.of(context).size.width >
+                      MediaQuery.of(context).size.height)
+                  ? MediaQuery.of(context).size.height * 0.25
+                  : MediaQuery.of(context).size.width * 0.3,
             ),
           ],
         ),
@@ -206,6 +220,33 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        (errorMsg.isNotEmpty)
+            ? Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Color.fromARGB(255, 255, 88, 102),
+                ),
+                padding:
+                    EdgeInsets.all(MediaQuery.of(context).size.height * 0.01),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        errorMsg,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal, color: Colors.white),
+                      ),
+                      Text(
+                        errorStatus,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal, color: Colors.white),
+                      ),
+                    ]),
+              )
+            : SizedBox(),
+        const SizedBox(height: 10),
         TextField(
           onSubmitted: (val) {
             _loginSubmit(usernameController.text, passwordController.text);
